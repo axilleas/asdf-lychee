@@ -2,8 +2,7 @@
 
 set -euo pipefail
 
-# TODO: Ensure this is the correct GitHub homepage where releases can be downloaded for lychee.
-GH_REPO="https://gitlab.com/axil/asdf-lychee"
+GH_REPO="https://github.com/lycheeverse/lychee"
 TOOL_NAME="lychee"
 TOOL_TEST="lychee --help"
 
