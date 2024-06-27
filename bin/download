@@ -10,14 +10,22 @@ source "${plugin_dir}/lib/utils.bash"
 
 mkdir -p "$ASDF_DOWNLOAD_PATH"
 
-# TODO: Adapt this to proper extension and adapt extracting strategy.
-release_file="$ASDF_DOWNLOAD_PATH/$TOOL_NAME-$ASDF_INSTALL_VERSION.tar.gz"
+OS=$(get_os)
+release_file="$ASDF_DOWNLOAD_PATH/$TOOL_NAME-$ASDF_INSTALL_VERSION-$OS"
 
 # Download tar.gz file to the download directory
 download_release "$ASDF_INSTALL_VERSION" "$release_file"
 
-#  Extract contents of tar.gz file into the download directory
-tar -xzf "$release_file" -C "$ASDF_DOWNLOAD_PATH" --strip-components=1 || fail "Could not extract $release_file"
+if $OS == 'linux'
+then
+	# Extract contents of tar.gz file into the download directory
+	tar -xzf "$release_file" -C "$ASDF_DOWNLOAD_PATH" --strip-components=1 || fail "Could not extract $release_file"
+elif $OS == 'macos'
+	# Use hdiutil to mount the dmg file and grab the binary
+	hdiutil attach "$release_file"
+	cp /Volumes/lychee/lychee "$ASDF_DOWNLOAD_PATH"
+	hdiutil umount /Volumes/lychee
+fi
 
 # Remove the tar.gz file since we don't need to keep it
 rm "$release_file"

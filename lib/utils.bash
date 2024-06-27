@@ -11,9 +11,27 @@ fail() {
 	exit 1
 }
 
+get_os() {
+	os=$(uname -s)
+	case $os in
+	Darwin) os="macos" ;;
+	Linux) os="linux" ;;
+	*) fail "The os (${os}) is not supported by this installation script." ;;
+	esac
+	echo "$os"
+}
+
+get_arch() {
+	arch=$(uname -m)
+	case $arch in
+	x86_64) arch="x86_64" ;;
+	*) fail "The architecture (${arch}) is not supported by this installation script." ;;
+	esac
+	echo "$arch"
+}
+
 curl_opts=(-fsSL)
 
-# NOTE: You might want to remove this if lychee is not hosted on GitHub releases.
 if [ -n "${GITHUB_API_TOKEN:-}" ]; then
 	curl_opts=("${curl_opts[@]}" -H "Authorization: token $GITHUB_API_TOKEN")
 fi
@@ -26,22 +44,29 @@ sort_versions() {
 list_github_tags() {
 	git ls-remote --tags --refs "$GH_REPO" |
 		grep -o 'refs/tags/.*' | cut -d/ -f3- |
-		sed 's/^v//' # NOTE: You might want to adapt this sed to remove non-version strings from tags
+		sed 's/^v//' |
+		grep -Ev 'alpha|nightly'
 }
 
 list_all_versions() {
-	# TODO: Adapt this. By default we simply list the tag names from GitHub releases.
 	# Change this function if lychee has other means of determining installable versions.
 	list_github_tags
 }
 
 download_release() {
+	os=$(get_os)
+	arch=$(get_arch)
+
 	local version filename url
 	version="$1"
 	filename="$2"
 
-	# TODO: Adapt the release URL convention for lychee
-	url="$GH_REPO/archive/v${version}.tar.gz"
+	if $os == 'linux'
+	then
+		url="$GH_REPO/releases/download/lychee-v${version}-${arch}-unknown-linux-gnu.tar.gz"
+	elif $os == 'macos'
+		url="$GH_REPO/releases/download/lychee-v${version}-macos-${arch}.dmg"
+	fi
 
 	echo "* Downloading $TOOL_NAME release $version..."
 	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
