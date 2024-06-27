@@ -61,10 +61,9 @@ download_release() {
 	version="$1"
 	filename="$2"
 
-	if $os == 'linux'
-	then
+	if [ "$os" = 'linux' ]; then
 		url="$GH_REPO/releases/download/lychee-v${version}-${arch}-unknown-linux-gnu.tar.gz"
-	elif $os == 'macos'
+	elif [ "$os" = 'macos' ]; then
 		url="$GH_REPO/releases/download/lychee-v${version}-macos-${arch}.dmg"
 	fi
 

@@ -16,11 +16,10 @@ release_file="$ASDF_DOWNLOAD_PATH/$TOOL_NAME-$ASDF_INSTALL_VERSION-$OS"
 # Download tar.gz file to the download directory
 download_release "$ASDF_INSTALL_VERSION" "$release_file"
 
-if $OS == 'linux'
-then
+if [ "$OS" = 'linux' ]; then
 	# Extract contents of tar.gz file into the download directory
 	tar -xzf "$release_file" -C "$ASDF_DOWNLOAD_PATH" --strip-components=1 || fail "Could not extract $release_file"
-elif $OS == 'macos'
+elif [ "$OS" = 'macos' ]; then
 	# Use hdiutil to mount the dmg file and grab the binary
 	hdiutil attach "$release_file"
 	cp /Volumes/lychee/lychee "$ASDF_DOWNLOAD_PATH"
